@@ -25,8 +25,12 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -61,6 +65,7 @@ public class Statistics extends javax.swing.JPanel {
     private Connection conn = null;
     private PreparedStatement pst = null;
     private DefaultTableModel modelStatistic = null;
+    private int sttIO = 1;
 
     public Statistics() {
         initComponents();
@@ -174,8 +179,18 @@ public class Statistics extends javax.swing.JPanel {
         });
 
         exportCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tổng quát", "Cho nhân viên", "Cho khách hàng" }));
+        exportCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exportComboActionPerformed(evt);
+            }
+        });
 
         importCombo.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tổng quát", "Cho nhân viên", "Cho nhà cung cấp" }));
+        importCombo.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importComboActionPerformed(evt);
+            }
+        });
 
         statisticImport.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -249,10 +264,13 @@ public class Statistics extends javax.swing.JPanel {
                             .addComponent(importCombo, javax.swing.GroupLayout.Alignment.TRAILING, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addGap(20, 20, 20)
                         .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(statisticImport, javax.swing.GroupLayout.DEFAULT_SIZE, 229, Short.MAX_VALUE)
-                            .addComponent(statisticExport)))
+                            .addGroup(StatisticLayout.createSequentialGroup()
+                                .addGap(20, 20, 20)
+                                .addComponent(statisticImport, javax.swing.GroupLayout.DEFAULT_SIZE, 217, Short.MAX_VALUE))
+                            .addGroup(StatisticLayout.createSequentialGroup()
+                                .addGap(18, 18, 18)
+                                .addComponent(statisticExport))))
                     .addComponent(lbStatistic, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addContainerGap())
@@ -272,9 +290,7 @@ public class Statistics extends javax.swing.JPanel {
                 .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(statisticImport, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel5, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -284,15 +300,19 @@ public class Statistics extends javax.swing.JPanel {
                     .addGroup(StatisticLayout.createSequentialGroup()
                         .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(StatisticLayout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(productCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(StatisticLayout.createSequentialGroup()
-                                .addGap(7, 7, 7)
-                                .addComponent(importCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(8, 8, 8)
-                        .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(statisticExport, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(StatisticLayout.createSequentialGroup()
+                                        .addGap(6, 6, 6)
+                                        .addComponent(productCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                    .addGroup(StatisticLayout.createSequentialGroup()
+                                        .addGap(5, 5, 5)
+                                        .addComponent(statisticImport, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addGap(5, 5, 5))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, StatisticLayout.createSequentialGroup()
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(importCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)))
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 36, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(StatisticLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -300,7 +320,11 @@ public class Statistics extends javax.swing.JPanel {
                             .addComponent(customerCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(employeeCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(exportCombo, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(StatisticLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(statisticExport, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(StatisticLayout.createSequentialGroup()
+                        .addGap(2, 2, 2)
+                        .addComponent(exportCombo)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(lbStatistic, javax.swing.GroupLayout.PREFERRED_SIZE, 38, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -334,6 +358,12 @@ public class Statistics extends javax.swing.JPanel {
         }
     }
 
+    /**
+     * Hàm này sẽ làm interface cho các hàm khác
+     *
+     * @param sql
+     * @param col
+     */
     private void statistics(String sql, int col) {
         int i = 1;
         try {
@@ -586,6 +616,7 @@ public class Statistics extends javax.swing.JPanel {
             int index = supplierCombo.getSelectedIndex();
             switch (index) {
                 case 0:
+                    lbStatistic.setText("THỐNG KÊ NHÀ CUNG CẤP THEO ĐỊA CHỈ");
                     modelStatistic.setColumnIdentifiers(new Object[]{
                         " STT ", " Địa Chỉ ", " Số Lượng "
                     });
@@ -594,6 +625,589 @@ public class Statistics extends javax.swing.JPanel {
             }
         }
     }//GEN-LAST:event_supplierComboActionPerformed
+
+    /**
+     * .
+     * Hàm này lấy các time từ ngày lập và ngày nhận or xuất
+     *
+     * @param sql
+     * @param strTime
+     * @return
+     */
+    private ArrayList<String> listTime(String sql, String strTime) {
+        ArrayList<String> listTime = new ArrayList<>();
+        Set<String> set = new HashSet<>();
+        int length = strTime.length();
+        try {
+            pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                String s1 = rs.getString(1);
+                String s2 = rs.getString(2);
+                if (s1.indexOf(strTime) == 0) {
+                    if (length == 0) {
+                        s1 = s1.substring(0, 4);
+                    } else if (length == 4) {
+                        s1 = s1.substring(0, 7);
+                    } else {
+                        //Không làm gì cả
+                    }
+                    set.add(s1);
+                }
+                if (s2 != null && !s2.equals("0000-00-00") && s2.indexOf(strTime) == 0) {
+                    if (length == 0) {
+                        s2 = s2.substring(0, 4);
+                    } else if (length == 4) {
+                        s2 = s2.substring(0, 7);
+                    } else {
+                        //Không làm gì cả
+                    }
+                    set.add(s2);
+                }
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        listTime.addAll(set);
+        Collections.sort(listTime);
+        return listTime;
+    }
+
+    /**
+     * Hàm này sẽ thống kê tổng quát nhập hàng
+     *
+     * @param time
+     */
+    private void statisticImportGenerality(String time) {
+        String sql1 = "select count(distinct A.maHDN) , sum(B.soLuong)\n"
+                + "from quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where A.ngayLap like '" + time + "%';";
+        String sql2 = "select sum(B.thanhTien)\n"
+                + "from quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where A.ngayNhanHang like '" + time + "%';";
+        Vector<String> vector = new Vector<>();
+        try {
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                vector.add(rs2.getInt(1) + "");
+            }
+            if (!vector.get(2).equals("0") || !vector.get(4).equals("0")) {
+                modelStatistic.addRow(vector);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Hàm này thống kê tổng quát xuất hàng
+     *
+     * @param time
+     */
+    private void statisticExportGenerality(String time) {
+        String sql1 = "select count(distinct A.maHDX) , sum(B.soLuong)\n"
+                + "from quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where A.ngayLap like '" + time + "%';";
+        String sql2 = "select sum(B.thanhTien)\n"
+                + "from quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where A.ngayXuatHang like '" + time + "%';";
+        Vector<String> vector = new Vector<>();
+        try {
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                vector.add(rs2.getInt(1) + "");
+            }
+            if (!vector.get(2).equals("0") || !vector.get(4).equals("0")) {
+                modelStatistic.addRow(vector);
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Đưa ra tên nhân viên dựa trên mã nhân viên
+     *
+     * @param maNV
+     * @return
+     */
+    private String getNameEmployee(String maNV) {
+        String name = null;
+        String sql = "Select hoTen\n"
+                + "from quanlybangiay.nhanvien\n"
+                + "where maNV like '" + maNV + "';";
+        try {
+            pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                name = rs.getString(1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return name;
+    }
+
+    /**
+     * Thống kê nhập hàng cho nhân viên
+     *
+     * @param time
+     */
+    private void statisticImportForEmployee(String maNV, String time) {
+        String sql1 = "Select count(maNV) , sum(soLuong)\n"
+                + "FROM quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where maNV = '" + maNV + "' and ngayLap like '" + time + "%'\n"
+                + "group by maNV;";
+        String sql2 = "Select sum(thanhTien)\n"
+                + "from quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where maNV like '" + maNV + "' and ngayNhanHang like '" + time + "%';";
+
+        try {
+            Vector<String> vector = new Vector<>();
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            String tmp = null;
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(maNV);
+                vector.add(getNameEmployee(maNV));
+                tmp = rs1.getString(1);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                if (tmp == null) {
+                    vector.add(sttIO + "");
+                    vector.add(time);
+                    vector.add(maNV);
+                    vector.add(getNameEmployee(maNV));
+                    vector.add(0 + "");
+                    vector.add(0 + "");
+                }
+                vector.add(rs2.getInt(1) + "");
+            }
+            modelStatistic.addRow(vector);
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Đưa ra tên nhà cung cấp
+     *
+     * @param maNCC
+     * @return
+     */
+    private String getNameSupplier(String maNCC) {
+        String name = null;
+        String sql = "Select tenNCC\n"
+                + "from quanlybangiay.nhacungcap\n"
+                + "where maNCC like '" + maNCC + "';";
+        try {
+            pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                name = rs.getString(1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return name;
+    }
+
+    /**
+     * Thống kê nhập hàng cho nhà cung cấp
+     *
+     * @param time
+     */
+    private void statisticImportForSupplier(String maNCC, String time) {
+        String sql1 = "Select count(maNCC) , sum(soLuong)\n"
+                + "FROM quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where maNCC = '" + maNCC + "' and ngayLap like '" + time + "%'\n"
+                + "group by maNCC;";
+        String sql2 = "Select sum(thanhTien)\n"
+                + "from quanlybangiay.hoadonnhap as A left join quanlybangiay.hoadonchitietnhap as B on A.maHDN = B.maHDN\n"
+                + "where maNCC like '" + maNCC + "' and ngayNhanHang like '" + time + "%';";
+        try {
+            Vector<String> vector = new Vector<>();
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            String tmp = null;
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(maNCC);
+                vector.add(getNameSupplier(maNCC));
+                tmp = rs1.getString(1);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                if (tmp == null) {
+                    vector.add(sttIO + "");
+                    vector.add(time);
+                    vector.add(maNCC);
+                    vector.add(getNameSupplier(maNCC));
+                    vector.add(0 + "");
+                    vector.add(0 + "");
+                }
+                vector.add(rs2.getInt(1) + "");
+            }
+            modelStatistic.addRow(vector);
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Thống kê xuất hàng cho nhân viên
+     *
+     * @param maNV
+     * @param time
+     */
+    private void statisticExportForEmployee(String maNV, String time) {
+        String sql1 = "Select count(maNV) , sum(soLuong)\n"
+                + "FROM quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where maNV = '" + maNV + "' and ngayLap like '" + time + "%'\n"
+                + "group by maNV;";
+        String sql2 = "Select sum(thanhTien)\n"
+                + "from quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where maNV like '" + maNV + "' and ngayXuatHang like '" + time + "%';";
+
+        try {
+            Vector<String> vector = new Vector<>();
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            String tmp = null;
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(maNV);
+                vector.add(getNameEmployee(maNV));
+                tmp = rs1.getString(1);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                if (tmp == null) {
+                    vector.add(sttIO + "");
+                    vector.add(time);
+                    vector.add(maNV);
+                    vector.add(getNameEmployee(maNV));
+                    vector.add(0 + "");
+                    vector.add(0 + "");
+                }
+                vector.add(rs2.getInt(1) + "");
+            }
+            modelStatistic.addRow(vector);
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    /**
+     * Đưa ra tên của khách hàng
+     *
+     * @param maKH
+     * @return
+     */
+    private String getNameCustomer(String maKH) {
+        String name = null;
+        String sql = "Select hoTen\n"
+                + "from quanlybangiay.khachhang\n"
+                + "where maKH like '" + maKH + "';";
+        try {
+            pst = conn.prepareStatement(sql);
+            ResultSet rs = pst.executeQuery();
+            while (rs.next()) {
+                name = rs.getString(1);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return name;
+    }
+
+    /**
+     * Thống kê xuất hàng cho khách hàng
+     *
+     * @param maKH
+     * @param time
+     */
+    private void statisticExportForCustomer(String maKH, String time) {
+        String sql1 = "Select count(maKH) , sum(soLuong)\n"
+                + "FROM quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where maKH = '" + maKH + "' and ngayLap like '" + time + "%'\n"
+                + "group by maKH;";
+        String sql2 = "Select sum(thanhTien)\n"
+                + "from quanlybangiay.hoadonxuat as A left join quanlybangiay.hoadonchitietxuat as B on A.maHDX = B.maHDX\n"
+                + "where maKH like '" + maKH + "' and ngayXuatHang like '" + time + "%';";
+        try {
+            Vector<String> vector = new Vector<>();
+            pst = conn.prepareStatement(sql1);
+            ResultSet rs1 = pst.executeQuery();
+            String tmp = null;
+            while (rs1.next()) {
+                vector.add(sttIO + "");
+                vector.add(time);
+                vector.add(maKH);
+                vector.add(getNameCustomer(maKH));
+                tmp = rs1.getString(1);
+                vector.add(rs1.getInt(1) + "");
+                vector.add(rs1.getInt(2) + "");
+            }
+            pst = conn.prepareStatement(sql2);
+            ResultSet rs2 = pst.executeQuery();
+            while (rs2.next()) {
+                if (tmp == null) {
+                    vector.add(sttIO + "");
+                    vector.add(time);
+                    vector.add(maKH);
+                    vector.add(getNameCustomer(maKH));
+                    vector.add(0 + "");
+                    vector.add(0 + "");
+                }
+                vector.add(rs2.getInt(1) + "");
+            }
+            modelStatistic.addRow(vector);
+        } catch (SQLException ex) {
+            JOptionPane.showConfirmDialog(null, "Error " + ex.getMessage());
+            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    private void importComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importComboActionPerformed
+        removeAllRow();
+        sttIO = 0;
+        ArrayList<String> listTime = this.listTime("select ngayLap,ngayNhanHang From quanlybangiay.hoadonnhap;",
+                statisticImport.getText());
+        int length = statisticImport.getText().length();
+        Object obj = evt.getSource();
+        if (obj == importCombo) {
+            int index = importCombo.getSelectedIndex();
+            switch (index) {
+                case 0:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG TỔNG QUÁT THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG TỔNG QUÁT THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG TỔNG QUÁT THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG TỔNG QUÁT THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Số hóa đơn ", " Tổng sản phẩm ", " Tổng tiền "
+                    });
+
+                    for (String time : listTime) {
+                        sttIO++;
+                        statisticImportGenerality(time);
+                    }
+                    break;
+                case 1:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÂN VIÊN THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÂN VIÊN THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÂN VIÊN THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÂN VIÊN THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Mã nhân viên ", "Tên nhân viên", "Số hóa đơn", "Tổng sản phẩm", "Tổng tiền"
+                    });
+                    for (String time : listTime) {
+
+                        String sql = "Select distinct maNV "
+                                + "from quanlybangiay.hoadonnhap "
+                                + "where ngayLap like '" + time + "%' "
+                                + "or ngayNhanHang like '" + time + "%'";
+                        try {
+                            pst = conn.prepareStatement(sql);
+                            ResultSet rs = pst.executeQuery();
+                            while (rs.next()) {
+                                sttIO++;
+                                statisticImportForEmployee(rs.getString(1), time);
+                            }
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+                case 2:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÀ CUNG CẤP THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÀ CUNG CẤP THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÀ CUNG CẤP THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ NHẬP HÀNG CHO NHÀ CUNG CẤP THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Mã nhà cung cấp ", "Tên nhà cung cấp", "Số hóa đơn", "Tổng sản phẩm", "Tổng tiền"
+                    });
+                    for (String time : listTime) {
+                        String sql = "Select distinct maNCC "
+                                + "from quanlybangiay.hoadonnhap "
+                                + "where ngayLap like '" + time + "%' "
+                                + "or ngayNhanHang like '" + time + "%'";
+                        try {
+                            pst = conn.prepareStatement(sql);
+                            ResultSet rs = pst.executeQuery();
+                            while (rs.next()) {
+                                sttIO++;
+                                statisticImportForSupplier(rs.getString(1), time);
+                            }
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+            }
+        }
+
+    }//GEN-LAST:event_importComboActionPerformed
+
+    private void exportComboActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportComboActionPerformed
+        removeAllRow();
+        sttIO = 0;
+        ArrayList<String> listTime = this.listTime("select ngayLap,ngayXuatHang From quanlybangiay.hoadonxuat;",
+                statisticExport.getText());
+        Object obj = evt.getSource();
+        String sql1 = "";
+        String sql2 = "";
+        String sql3 = "";
+        String sql4 = "";
+        int length = statisticExport.getText().length();
+        if (obj == exportCombo) {
+            int index = exportCombo.getSelectedIndex();
+            switch (index) {
+                case 0:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG TỔNG QUÁT THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG TỔNG QUÁT THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG TỔNG QUÁT THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG TỔNG QUÁT THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Số hóa đơn ", " Tổng sản phẩm ", " Tổng tiền "
+                    });
+                    for (String time : listTime) {
+                        sttIO++;
+                        statisticExportGenerality(time);
+                    }
+                    break;
+                case 1:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO NHÂN VIÊN THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO NHÂN VIÊN THEO THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO NHÂN VIÊN THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO NHÂN VIÊN THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Mã nhà cung cấp ", "Tên nhân viên", "Số hóa đơn", "Tổng sản phẩm", "Tổng tiền"
+                    });
+                    for (String time : listTime) {
+                        String sql = "Select distinct maNV "
+                                + "from quanlybangiay.hoadonxuat "
+                                + "where ngayLap like '" + time + "%' "
+                                + "or ngayXuatHang like '" + time + "%'";
+                        try {
+                            pst = conn.prepareStatement(sql);
+                            ResultSet rs = pst.executeQuery();
+                            while (rs.next()) {
+                                sttIO++;
+                                statisticExportForEmployee(rs.getString(1), time);
+                            }
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+                case 2:
+                    if (length == 0) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO KHÁCH HÀNG THEO CÁC NĂM");
+                    } else if (length == 4) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO KHÁCH HÀNG THEO THEO CÁC THÁNG TRONG NĂM");
+                    } else if (length == 7) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO KHÁCH HÀNG THEO CÁC NGÀY TRONG THÁNG");
+                    } else if (length == 10) {
+                        lbStatistic.setText("THỐNG KÊ XUẤT HÀNG CHO KHÁCH HÀNG THEO NGÀY");
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Bạn đã nhập sai. Vui lòng nhập lại theo đúng định dạng.");
+                    }
+                    modelStatistic.setColumnIdentifiers(new Object[]{
+                        " STT ", " Thời gian ", " Mã khách hàng ", " Tên khách hàng ", "Số hóa đơn", "Tổng sản phẩm", " Tổng tiền "
+                    });
+                    for (String time : listTime) {
+                        String sql = "Select distinct maKH "
+                                + "from quanlybangiay.hoadonxuat "
+                                + "where ngayLap like '" + time + "%' "
+                                + "or ngayXuatHang like '" + time + "%'";
+                        try {
+                            pst = conn.prepareStatement(sql);
+                            ResultSet rs = pst.executeQuery();
+                            while (rs.next()) {
+                                sttIO++;
+                                statisticExportForCustomer(rs.getString(1), time);
+                            }
+                        } catch (SQLException ex) {
+                            Logger.getLogger(Statistics.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+                    }
+                    break;
+            }
+        }
+    }//GEN-LAST:event_exportComboActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
