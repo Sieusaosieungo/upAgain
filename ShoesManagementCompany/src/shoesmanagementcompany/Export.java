@@ -443,7 +443,7 @@ public class Export extends javax.swing.JPanel {
         cost.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         properties.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
-        properties.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Mã hoá đơn xuất", "Mã khách hàng", "Mã nhân viên", "Mã sản phẩm", "Ngày nhập hàng" }));
+        properties.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Tìm kiếm theo", "Mã hoá đơn xuất", "Mã khách hàng", "Mã nhân viên", "Mã sản phẩm", "Ngày nhập hàng" }));
         properties.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 propertiesActionPerformed(evt);
@@ -881,7 +881,12 @@ public class Export extends javax.swing.JPanel {
         String f1 = "\\Documents\\NetBeansProjects\\ShoesManagementCompany\\Quản Lý Xuất\\";
         String f2 = null;
         String sql = null;
-
+        
+        if(properties.getSelectedItem().toString().equals("Tìm kiếm theo") || searchBox.getText().equals("")){
+            JOptionPane.showMessageDialog(null, "Bạn phải chọn tiêu chuẩn tìm kiếm");
+            return;
+        }
+        
         if (properties.getSelectedItem().toString().equals("Mã hoá đơn xuất")) {
             f2 = "Hoá đơn xuất.docx";
         } else if (properties.getSelectedItem().toString().equals("Mã khách hàng")) {
