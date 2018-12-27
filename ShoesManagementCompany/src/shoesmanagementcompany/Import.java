@@ -140,7 +140,6 @@ public class Import extends javax.swing.JPanel {
         editData2 = new javax.swing.JButton();
         clearData2 = new javax.swing.JButton();
         jToolBar2 = new javax.swing.JToolBar();
-        jButton7 = new javax.swing.JButton();
         cost = new javax.swing.JLabel();
         properties = new javax.swing.JComboBox<>();
         searchBox = new javax.swing.JTextField();
@@ -441,16 +440,6 @@ public class Import extends javax.swing.JPanel {
         jToolBar2.setBackground(new java.awt.Color(255, 255, 255));
         jToolBar2.setRollover(true);
 
-        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/shoesmanagementcompany/IconColor/icons8_Combo_Chart_37px.png"))); // NOI18N
-        jButton7.setToolTipText("Thống kê");
-        jButton7.setOpaque(false);
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-        jToolBar2.add(jButton7);
-
         cost.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         properties.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -736,6 +725,30 @@ public class Import extends javax.swing.JPanel {
         }
         return tenNV;
     }
+    
+    /**
+     * Lấy tên sản phẩm từ mã sản phẩm
+     * @param maNCC
+     * @return 
+     */
+    public String getTenSP(String maSP) {
+        String tenSP = null;
+        String sql = "SELECT tenSP "
+                + "FROM  sanpham "
+                + "WHERE maSP = '" + maSP + "';";
+        PreparedStatement ps = null;
+        Connection connection = ConnectionDB.getConnect();
+        try {
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                tenSP = rs.getString("tenSP");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+        return tenSP;
+    }
 
     /*------------------------------------------- Xuất File --------------------------------------------------*/
     // Xuất hoá đơn nhập
@@ -753,8 +766,7 @@ public class Import extends javax.swing.JPanel {
                         String text = r.getText(0);
                         if (text != null) {
                             if (text.contains("HDN")) {
-                                text = text.replace("HDN", tableImport1.getValueAt(0, 0).toString() + "      ");
-                                System.out.println("" + text);
+                                text = text.replace("HDN", tableImport1.getValueAt(0, 0).toString() + "      ");                               
                                 r.addBreak();
                                 r.setText(text, 0);
                             }
@@ -836,8 +848,9 @@ public class Import extends javax.swing.JPanel {
                             newRow.getCell(0).setText(i + "");
                             newRow.getCell(1).setText(tableImport2.getValueAt(i - 1, 0).toString());
                             newRow.getCell(2).setText(tableImport2.getValueAt(i - 1, 1).toString());
-                            newRow.getCell(3).setText(tableImport2.getValueAt(i - 1, 2).toString());
-                            newRow.getCell(4).setText(tableImport2.getValueAt(i - 1, 3).toString());
+                            newRow.getCell(3).setText(getTenSP(tableImport2.getValueAt(i - 1, 1).toString()));
+                            newRow.getCell(4).setText(tableImport2.getValueAt(i - 1, 2).toString());
+                            newRow.getCell(5).setText(tableImport2.getValueAt(i - 1, 3).toString());
 
                         }
                     }
@@ -888,6 +901,22 @@ public class Import extends javax.swing.JPanel {
                     + "from hoadonnhap A join hoadonchitietnhap B \n"
                     + "on A.maHDN = B.maHDN \n"
                     + "where A.maNV = \"" + searchBox.getText() + "\";";
+
+        } else if (properties.getSelectedItem().toString().equals("Mã sản phẩm")) {
+
+            f2 = "Tìm kiếm theo mã sản phẩm.docx";
+            sql = "SELECT A.maHDN, maSP, maNCC, maNV, ngayNhanHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonnhap A join hoadonchitietnhap B \n"
+                    + "on A.maHDN = B.maHDN \n"
+                    + "where B.maSP = \"" + searchBox.getText() + "\";";
+
+        } else if (properties.getSelectedItem().toString().equals("Ngày nhập hàng")) {
+
+            f2 = "Tìm kiếm theo ngày nhập hàng.docx";
+            sql = "SELECT A.maHDN, maSP, maNCC, maNV, ngayNhanHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonnhap A join hoadonchitietnhap B \n"
+                    + "on A.maHDN = B.maHDN \n"
+                    + "where A.ngayNhanHang = \"" + searchBox.getText() + "\";";
 
         }
 
@@ -1119,11 +1148,6 @@ public class Import extends javax.swing.JPanel {
         loadDataToTable(tableImport1);
         resetInputImport();
     }//GEN-LAST:event_insertData1ActionPerformed
-
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
-        new ChartFrame().setVisible(true);
-    }//GEN-LAST:event_jButton7ActionPerformed
 
     private void clearData1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearData1ActionPerformed
         int row = tableImport1.getSelectedRow();
@@ -1599,6 +1623,7 @@ public class Import extends javax.swing.JPanel {
     }//GEN-LAST:event_searchBoxActionPerformed
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_propertiesActionPerformed
+        exportFile.setEnabled(true);
         if (searchBox.getText().equals("")) {
             return;
         }
@@ -1914,7 +1939,6 @@ public class Import extends javax.swing.JPanel {
     private javax.swing.JTextField inputInvoice;
     private javax.swing.JButton insertData1;
     private javax.swing.JButton insertData2;
-    private javax.swing.JButton jButton7;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel18;

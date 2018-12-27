@@ -15,6 +15,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -22,8 +23,11 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,8 +51,10 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.apache.poi.xwpf.usermodel.IBodyElement;
+import org.apache.poi.xwpf.usermodel.TableRowAlign;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
 import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
@@ -75,7 +81,7 @@ public class Export extends javax.swing.JPanel {
         insertData1.setEnabled(false);
         editData1.setEnabled(false);
         clearData1.setEnabled(false);
-        
+
         insertData2.setEnabled(false);
         editData2.setEnabled(false);
         clearData2.setEnabled(false);
@@ -134,7 +140,6 @@ public class Export extends javax.swing.JPanel {
         editData2 = new javax.swing.JButton();
         clearData2 = new javax.swing.JButton();
         jToolBar2 = new javax.swing.JToolBar();
-        jButton7 = new javax.swing.JButton();
         cost = new javax.swing.JLabel();
         properties = new javax.swing.JComboBox<>();
         searchBox = new javax.swing.JTextField();
@@ -435,16 +440,6 @@ public class Export extends javax.swing.JPanel {
         jToolBar2.setBackground(new java.awt.Color(255, 255, 255));
         jToolBar2.setRollover(true);
 
-        jButton7.setIcon(new javax.swing.ImageIcon(getClass().getResource("/shoesmanagementcompany/IconColor/icons8_Combo_Chart_37px.png"))); // NOI18N
-        jButton7.setToolTipText("Thống kê");
-        jButton7.setOpaque(false);
-        jButton7.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton7ActionPerformed(evt);
-            }
-        });
-        jToolBar2.add(jButton7);
-
         cost.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
 
         properties.setFont(new java.awt.Font("Dialog", 0, 14)); // NOI18N
@@ -680,52 +675,335 @@ public class Export extends javax.swing.JPanel {
         }
     }//GEN-LAST:event_productComboActionPerformed
 
-    private void exportFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportFileActionPerformed
-        // TODO add your handling code here:
+    /**
+     * Lấy tên Nhà cung cấp
+     *
+     * @param maNCC
+     * @return
+     */
+    public String getTenKH(String maKH) {
+        String hoTen = null;
+        String sql = "SELECT hoTen "
+                + "FROM  khachhang "
+                + "WHERE maKH = '" + maKH + "';";
+        PreparedStatement ps = null;
+        Connection connection = ConnectionDB.getConnect();
         try {
-            // mở file word, trong đó file word trích đường dẫn như ví dụ bên dưới
-            FileInputStream fis = new FileInputStream("C:\\Users\\Pham Ngoc Minh\\Desktop\\TestWord.docx");
-            XWPFDocument xdoc = new XWPFDocument(OPCPackage.open(fis));
-            // con trỏ duyệt phần thân của file word
-            Iterator bodyElementIterator = xdoc.getBodyElementsIterator();
-            // duyệt phần body
-            while (bodyElementIterator.hasNext()) {
-                IBodyElement element = (IBodyElement) bodyElementIterator.next();
-                // lấy tất cả các bảng trong phần body
-                if ("TABLE".equalsIgnoreCase(element.getElementType().name())) {
-                    java.util.List<XWPFTable> tableList = element.getBody().getTables();
-                    // giờ xử lý với từng bảng, vì trong biểu mẫu chỉ có một bảng nên nó sẽ chỉ xử lý 1 lần
-                    for (XWPFTable table : tableList) {
-                        setDefaultTable(table);
-                        for (int i = 1; i < table.getRows().size(); i++) {
-                            for (int j = 0; j < table.getRow(i).getTableCells().size(); j++) {
-                                removeParagraphs(table.getRow(i).getCell(j));
-                                XWPFParagraph paragraph = table.getRow(i).getCell(j).addParagraph();
-                                paragraph.createRun().setText(tableExport1.getValueAt(i - 1, j).toString());
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                hoTen = rs.getString("hoTen");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+        return hoTen;
+    }
+
+    /**
+     * Lấy ten nhân viên
+     *
+     * @param maNV
+     * @return
+     */
+    public String getTenNV(String maNV) {
+        String tenNV = null;
+        String sql = "SELECT hoTen "
+                + "FROM  nhanvien "
+                + "WHERE MaNV = '" + maNV + "';";
+        PreparedStatement ps = null;
+        Connection connection = ConnectionDB.getConnect();
+        try {
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                tenNV = rs.getString("hoTen");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+        return tenNV;
+    }
+
+    /**
+     * Lấy tên sản phẩm từ mã sản phẩm
+     *
+     * @param maKH
+     * @return
+     */
+    public String getTenSP(String maSP) {
+        String tenSP = null;
+        String sql = "SELECT tenSP "
+                + "FROM  sanpham "
+                + "WHERE maSP = '" + maSP + "';";
+        PreparedStatement ps = null;
+        Connection connection = ConnectionDB.getConnect();
+        try {
+            ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                tenSP = rs.getString("tenSP");
+            }
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, "Error: " + ex.getMessage());
+        }
+        return tenSP;
+    }
+
+    /*------------------------------------------- Xuất File --------------------------------------------------*/
+    // Xuất hoá đơn xuất
+    public void xuatPhieu(XWPFDocument doc, String fileName) {
+        try {
+            InputStream file = new FileInputStream(fileName);
+            Iterator bodyElementIterator = doc.getBodyElementsIterator();
+
+            for (XWPFParagraph p : doc.getParagraphs()) {
+                List<XWPFRun> runs = p.getRuns();
+                if (runs != null) {
+                    for (XWPFRun r : runs) {
+                        r.setFontSize(12);
+                        r.setFontFamily("Times New Roman");
+                        String text = r.getText(0);
+                        if (text != null) {
+                            if (text.contains("HDX")) {
+                                text = text.replace("HDX", tableExport1.getValueAt(0, 0).toString() + "      ");                                
+                                r.addBreak();
+                                r.setText(text, 0);
                             }
 
+                            if (text.contains("ABC")) {
+                                text = text.replace("ABC", "                       Mã khách hàng: "
+                                        + tableExport1.getValueAt(0, 1).toString() + "                                    "
+                                        + "Tên khách hàng: "
+                                        + getTenKH(tableExport1.getValueAt(0, 1).toString()));
+                                r.addBreak();
+                                r.setText(text, 0);
+
+                            }
+
+                            if (text.contains("NVx")) {
+                                text = text.replace("NVx", "                       Mã nhân viên: "
+                                        + tableExport1.getValueAt(0, 2).toString() + "                                       "
+                                        + "Tên nhân viên: "
+                                        + getTenNV(tableExport1.getValueAt(0, 2).toString()));
+                                r.addBreak();
+                                r.setText(text, 0);
+
+                            }
+
+                            if (text.contains("yyyyMMDD")) {
+                                text = text.replace("yyyyMMDD", "                       Ngày lập: "
+                                        + tableExport1.getValueAt(0, 3).toString() + "                                   "
+                                        + "Ngày nhận hàng: "
+                                        + tableExport1.getValueAt(0, 4).toString());
+                                r.addBreak();
+                                r.setText(text, 0);
+                            }
+                            if (text.contains("tiencpxxx")) {
+                                int tongSoTien = 0;
+
+                                for (int i = 0; i < tableExport2.getRowCount(); i++) {
+                                    tongSoTien += Integer.parseInt(tableExport2.getValueAt(i, 3).toString());
+                                }
+                                text = text.replace("tiencpxxx", "                        Tổng số tiền: " + tongSoTien);
+                                r.addBreak();
+                                r.setText(text, 0);
+                                break;
+                            }
+                            if (text.contains("ngayxxx")) {
+                                SimpleDateFormat day = new SimpleDateFormat("dd");
+                                SimpleDateFormat month = new SimpleDateFormat("MM");
+                                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                                Date date = new Date();
+                                String ngay = day.format(date);
+                                String thang = month.format(date);
+                                String nam = year.format(date);
+                                text = text.replace("ngayxxx", "Ngày  " + ngay + "  Tháng  " + thang + "  Năm  " + nam);
+                                r.setText(text, 0);
+                                break;
+                            }
                         }
-                        addRowData(table, table.getRows().size());
                     }
                 }
             }
-            OutputStream out = new FileOutputStream("C:\\Users\\Pham Ngoc Minh\\Desktop\\TestWord.docx");
-            xdoc.write(out);
-            out.close();
 
-        } catch (IOException | InvalidFormatException ex) {
+            while (bodyElementIterator.hasNext()) {
+                IBodyElement element = (IBodyElement) bodyElementIterator.next();
+                if ("TABLE".equalsIgnoreCase(element.getElementType().name())) {
+                    //Danh sách tất cả Table trong file word
+                    List<XWPFTable> tableList = element.getBody().getTables();
+                    for (XWPFTable table : tableList) {
+                        //Căn bảng ở giữa file
+                        table.setTableAlignment(TableRowAlign.CENTER);
+
+                        //  Xóa các dòng thừa trước khi thêm mới
+                        while (table.getRow(1) != null) {
+                            table.removeRow(1);
+                        }
+                        //Thêm các dòng từ jTable vào table trong word
+                        for (int i = 1; i <= tableExport2.getRowCount(); i++) {
+
+                            XWPFTableRow newRow = table.createRow();
+                            newRow.getCell(0).setText(i + "");
+                            newRow.getCell(1).setText(tableExport2.getValueAt(i - 1, 0).toString());
+                            newRow.getCell(2).setText(tableExport2.getValueAt(i - 1, 1).toString());
+                            newRow.getCell(3).setText(getTenSP(tableExport2.getValueAt(i - 1, 1).toString()));
+                            newRow.getCell(4).setText(tableExport2.getValueAt(i - 1, 2).toString());
+                            newRow.getCell(5).setText(tableExport2.getValueAt(i - 1, 3).toString());
+
+                        }
+                    }
+                }
+            }
+
+            OutputStream fOut = new FileOutputStream("Hoá đơn xuất.docx");
+            doc.write(fOut);
+            fOut.close();
+        } catch (IOException ex) {
+            JOptionPane.showConfirmDialog(null, ex.getMessage());
+            Logger.getLogger(Export.class.getName()).log(Level.SEVERE, null, ex);
         }
-        int dialogResult = JOptionPane.showConfirmDialog(null, "File đã tạo thành công!\nBạn có muốn mở file?");
-        if (dialogResult == JOptionPane.YES_OPTION) {
-            if (Desktop.isDesktopSupported()) {
+
+        String fileOut = System.getProperty("user.home")
+                + "\\Documents\\NetBeansProjects\\ShoesManagementCompany\\"
+                + "Hoá đơn xuất.docx";
+        try {
+            File myFile = new File(fileOut);
+            Desktop.getDesktop().open(myFile);
+        } catch (IOException ex) {
+            JOptionPane.showConfirmDialog(null, ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+    private void exportFileActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exportFileActionPerformed
+        String fileName = null;
+        String f0 = System.getProperty("user.home");
+        String f1 = "\\Documents\\NetBeansProjects\\ShoesManagementCompany\\Quản Lý Xuất\\";
+        String f2 = null;
+        String sql = null;
+
+        if (properties.getSelectedItem().toString().equals("Mã hoá đơn xuất")) {
+            f2 = "Hoá đơn xuất.docx";
+        } else if (properties.getSelectedItem().toString().equals("Mã khách hàng")) {
+
+            f2 = "Tìm kiếm theo mã khách hàng.docx";
+            sql = "SELECT A.maHDX, maSP, maKH, maNV, ngayXuatHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonxuat A join hoadonchitietxuat B \n"
+                    + "on A.maHDX = B.maHDX \n"
+                    + "where A.maKH = \"" + searchBox.getText() + "\";";
+
+        } else if (properties.getSelectedItem().toString().equals("Mã nhân viên")) {
+            //JOptionPane.showMessageDialog(null, "OK");
+
+            f2 = "Tìm kiếm theo mã nhân viên.docx";
+            sql = "SELECT A.maHDX, maSP, maKH, maNV, ngayXuatHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonxuat A join hoadonchitietxuat B \n"
+                    + "on A.maHDX = B.maHDX \n"
+                    + "where A.maNV = \"" + searchBox.getText() + "\";";
+
+        } else if (properties.getSelectedItem().toString().equals("Mã sản phẩm")) {
+
+            f2 = "Tìm kiếm theo mã sản phẩm.docx";
+            sql = "SELECT A.maHDX, maSP, maKH, maNV, ngayXuatHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonxuat A join hoadonchitietxuat B \n"
+                    + "on A.maHDX = B.maHDX \n"
+                    + "where B.maSP = \"" + searchBox.getText() + "\";";
+
+        } else if (properties.getSelectedItem().toString().equals("Ngày xuất hàng")) {
+
+            f2 = "Tìm kiếm theo ngày xuất hàng.docx";
+            sql = "SELECT A.maHDX, maSP, maKH, maNV, ngayXuatHang, ngayLap, soLuong, thanhTien\n"
+                    + "from hoadonxuat A join hoadonchitietxuat B \n"
+                    + "on A.maHDX = B.maHDX \n"
+                    + "where A.ngayXuatHang = \"" + searchBox.getText() + "\";";
+
+        }
+
+        fileName = f0 + f1 + f2;
+
+        try {
+            InputStream file = new FileInputStream(fileName);
+            XWPFDocument docx = new XWPFDocument(OPCPackage.open(file));
+            Iterator bodyElementIterator = docx.getBodyElementsIterator();
+            //Nếu là xuất phiếu mượn thì sửa form
+            if (f2.equals("Hoá đơn xuất.docx")) {
+                xuatPhieu(docx, fileName);
+            } else {
+                for (XWPFParagraph p : docx.getParagraphs()) {
+                    List<XWPFRun> runs = p.getRuns();
+                    if (runs != null) {
+                        for (XWPFRun r : runs) {
+                            r.setFontSize(12);
+                            r.setFontFamily("Times New Roman");
+                            String text = r.getText(0);
+                            if (text != null) {
+                                if (text.contains("ngayxxx")) {
+                                    SimpleDateFormat day = new SimpleDateFormat("dd");
+                                    SimpleDateFormat month = new SimpleDateFormat("MM");
+                                    SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                                    Date date = new Date();
+                                    String ngay = day.format(date);
+                                    String thang = month.format(date);
+                                    String nam = year.format(date);
+                                    text = text.replace("ngayxxx", "Ngày  " + ngay + "  Tháng  " + thang + "  Năm  " + nam);
+                                    r.setText(text, 0);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                while (bodyElementIterator.hasNext()) {
+                    IBodyElement element = (IBodyElement) bodyElementIterator.next();
+                    if ("TABLE".equalsIgnoreCase(element.getElementType().name())) {
+                        //Danh sách tất cả Table trong file word
+                        List<XWPFTable> tableList = element.getBody().getTables();
+                        for (XWPFTable table : tableList) {
+                            //Căn bảng ở giữa file
+                            table.setTableAlignment(TableRowAlign.CENTER);
+                            //  Xóa các dòng thừa trước khi thêm mới
+                            while (table.getRow(1) != null) {
+                                table.removeRow(1);
+                            }
+                            int i = 0;
+                            //Thêm các dòng từ jTable vào table trong word
+                            PreparedStatement ps = null;
+                            Connection connection = ConnectionDB.getConnect();
+                            try {
+                                ps = connection.prepareStatement(sql);
+                                ResultSet rs = ps.executeQuery();
+                                while (rs.next()) {
+                                    XWPFTableRow newRow = table.createRow();
+                                    newRow.getCell(0).setText(++i + "");
+                                    for (int j = 1; j < 9; j++) {
+
+                                        newRow.getCell(j).setText(rs.getString(j));
+                                    }
+                                }
+                            } catch (SQLException ex) {
+                                Logger.getLogger(Import.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+
+                        }
+                    }
+                }
+                OutputStream fOut = new FileOutputStream(f2);
+                docx.write(fOut);
+                fOut.close();
+                //Mở file
                 try {
-                    File myFile = new File("C:\\Users\\Pham Ngoc Minh\\Desktop\\TestWord.docx");
+                    File myFile = new File(f0 + "\\Documents\\NetBeansProjects\\ShoesManagementCompany\\" + f2);
                     Desktop.getDesktop().open(myFile);
                 } catch (IOException ex) {
                     // no application registered for PDFs
+                    JOptionPane.showConfirmDialog(null, ex.getMessage());
+                    ex.printStackTrace();
                 }
             }
-        } else {
+        } catch (IOException | InvalidFormatException ex) {
+            JOptionPane.showConfirmDialog(null, ex.getMessage());
+            Logger.getLogger(Import.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_exportFileActionPerformed
 
@@ -870,11 +1148,6 @@ public class Export extends javax.swing.JPanel {
         resetInputImport();
     }//GEN-LAST:event_insertData1ActionPerformed
 
-    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
-        new ChartFrame().setVisible(true);
-    }//GEN-LAST:event_jButton7ActionPerformed
-
     private void clearData1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearData1ActionPerformed
         int row = tableExport1.getSelectedRow();
         if (row < 0) {
@@ -1007,7 +1280,7 @@ public class Export extends javax.swing.JPanel {
         insertData1.setEnabled(true);
         editData1.setEnabled(true);
         clearData1.setEnabled(true);
-        
+
         insertData2.setEnabled(true);
         editData2.setEnabled(true);
         clearData2.setEnabled(true);
@@ -1034,7 +1307,7 @@ public class Export extends javax.swing.JPanel {
     }//GEN-LAST:event_viewData1ActionPerformed
 
     private void insertData2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_insertData2ActionPerformed
-        if(lbExportInvoice.getText().equals("") || productCombo.getSelectedItem().equals("Chọn mã sản phẩm") || quantity.getText().equals("")){
+        if (lbExportInvoice.getText().equals("") || productCombo.getSelectedItem().equals("Chọn mã sản phẩm") || quantity.getText().equals("")) {
             JOptionPane.showMessageDialog(null, "Không thể thêm ! Xem lại !");
             return;
         }
@@ -1264,7 +1537,7 @@ public class Export extends javax.swing.JPanel {
                 pst.setString(2, (String) tableExport2.getValueAt(row, 1));
 
                 if (pst.executeUpdate() > 0) {
-                    
+
                 } else {
                     JOptionPane.showConfirmDialog(null, "Xoá thất bại! Xin kiểm tra lại!");
                 }
@@ -1349,6 +1622,7 @@ public class Export extends javax.swing.JPanel {
     }//GEN-LAST:event_searchBoxActionPerformed
 
     private void propertiesActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_propertiesActionPerformed
+        exportFile.setEnabled(true);
         if (searchBox.getText().equals("")) {
             return;
         }
@@ -1531,7 +1805,7 @@ public class Export extends javax.swing.JPanel {
                     }
                     break;
                 }
-                
+
                 case "Ngày nhập hàng": {
                     String[] maHDX = new String[100];
                     int count = 0;
@@ -1667,7 +1941,6 @@ public class Export extends javax.swing.JPanel {
     private javax.swing.JTextField exportInvoice;
     private javax.swing.JButton insertData1;
     private javax.swing.JButton insertData2;
-    private javax.swing.JButton jButton7;
     private javax.swing.JComboBox<String> jComboBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel18;
